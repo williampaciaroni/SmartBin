@@ -4,6 +4,8 @@
 
 #define rxPinPlastic 4
 #define txPinPlastic 5
+#define rxPinPaper 6
+#define txPinPaper 7
 #define rxPinQR 8
 #define txPinQR 9
 #define rxPinBLEModule 11
@@ -11,6 +13,8 @@
 #define qrControl 13
 
 SoftwareSerial arduinoPlasticArm = SoftwareSerial(rxPinPlastic,txPinPlastic);
+
+SoftwareSerial arduinoPaperArm = SoftwareSerial(rxPinPaper,txPinPaper);
 bool plasticStatus = 0;
 bool paperStatus = 0;
 
@@ -30,6 +34,8 @@ void setup() {
   // put your setup code here, to run once:
   pinMode(rxPinPlastic,INPUT);
   pinMode(txPinPlastic,OUTPUT);
+  pinMode(rxPinPaper,INPUT);
+  pinMode(txPinPaper,OUTPUT);
   pinMode(rxPinQR,INPUT);
   pinMode(txPinQR,OUTPUT);
   pinMode(rxPinBLEModule,INPUT);
@@ -38,6 +44,8 @@ void setup() {
   Serial.begin(9600);
   while(!Serial){;}
   arduinoPlasticArm.begin(9600);
+  while(!arduinoPlasticArm){;}
+  arduinoPaperArm.begin(9600);
   while(!arduinoPlasticArm){;}
   qrSerial.begin(57600);
   while(!qrSerial){;}
@@ -90,7 +98,6 @@ bool isValid(String qrCode){
     DeserializationError error = deserializeJson(jsonDoc, qrCode);
     String basket = jsonDoc["basket"];
     if(basket.equals("plastic") || basket.equals("paper")){
-      Serial.println("vero");
       return 1;
     }else{
       return 0;
@@ -102,7 +109,7 @@ void getMaterial(){
     if(basket.equals("plastic")){
       openPlasticBasket();
     }else if(basket.equals("paper")){
-      //openPaperBasket();
+      openPaperBasket();
     }
 }
 
@@ -115,13 +122,13 @@ void openPlasticBasket(){
       c = arduinoPlasticArm.read();
     }
   }
+  Serial.println(c);
   plasticStatus=c;
   BLEPrint();
   btStatus=0;
   isQrRead=0;
 }
-
-/*void openPaperBasket(){
+void openPaperBasket(){
   arduinoPaperArm.print(1);
   arduinoPaperArm.listen();
   char c=' ';
@@ -130,10 +137,12 @@ void openPlasticBasket(){
       c = arduinoPaperArm.read();
     }
   }
-  if(c=='1'){
-    isQrRead=0;
-  }
-}*/
+  Serial.println(c);
+  paperStatus=c;
+  BLEPrint();
+  btStatus=0;
+  isQrRead=0;
+}
 
 void BLEPrint(){
   BLEModule.print('p');

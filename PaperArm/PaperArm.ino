@@ -1,15 +1,15 @@
 #include<SoftwareSerial.h>
 #include<Servo.h>
 #include <SimpleTimer.h>
-#define rxPinPlastic 4
-#define txPinPlastic 5
+#define rxPinPaper 4
+#define txPinPaper 5
 #define pirSensorOne 6
 #define pirSensorTwo 7
 
-SoftwareSerial arduinoCore = SoftwareSerial(rxPinPlastic,txPinPlastic);
+SoftwareSerial arduinoCore = SoftwareSerial(rxPinPaper,txPinPaper);
 
 Servo myServo;
-int pos = 0;
+int pos = 130;
 bool isOpened = 0;
 
 bool signalPIR = 0;
@@ -19,9 +19,10 @@ SimpleTimer timer;
 
 void setup() {
   // put your setup code here, to run once:
-  pinMode(rxPinPlastic,INPUT);
-  pinMode(txPinPlastic,OUTPUT);
+  pinMode(rxPinPaper,INPUT);
+  pinMode(txPinPaper,OUTPUT);
   pinMode(pirSensorOne,INPUT);
+  pinMode(pirSensorTwo,INPUT);
   myServo.attach(9);
   timer.setInterval(10000);
   initServo();
@@ -43,7 +44,7 @@ void loop() {
 
 void openBasket(){
   if(isOpened==0){
-    for(pos=1; pos<=130; pos+=1){
+    for(pos=130; pos>=1; pos-=1){
       myServo.write(pos);
       delay(20);
     }
@@ -54,7 +55,7 @@ void openBasket(){
 
 void closeBasket(){
   if(isOpened==1){
-    for(pos=130; pos>=1; pos-=1){
+    for(pos=1; pos<=130; pos+=1){
     myServo.write(pos);
     delay(20);
   }
@@ -86,11 +87,9 @@ void checkTrash(){
 bool getSignalFromSensors(){
   bool sensorValue = 0;
   if(digitalRead(pirSensorOne)==1){
-     Serial.println("Sensore1");
      sensorValue = 1;
      for(int k=0; k<1499; k++){
       if(digitalRead(pirSensorTwo)==1){
-        Serial.println("Sensore2");
         full=0;
         break;
       }
